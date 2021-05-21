@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package aws
+package scim
 
 import (
 	"bytes"
@@ -27,7 +27,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/awslabs/ssosync/internal/aws/mock"
+	"github.com/CQEN-QDCE/aws-sso-scim-goclient/mock"
 )
 
 type nopCloser struct {

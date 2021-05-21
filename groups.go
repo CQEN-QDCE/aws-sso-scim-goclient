@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package aws
+package scim
 
 // NewGroup creates an object representing a group with the given name
 func NewGroup(groupName string) *Group {
