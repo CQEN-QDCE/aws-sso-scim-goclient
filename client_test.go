@@ -655,6 +655,43 @@ func TestClient_CreateGroup(t *testing.T) {
 	}
 }
 
+func TestClient_UpdateGroup(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	x := mock.NewMockIHttpClient(ctrl)
+
+	c, err := NewClient(x, &Config{
+		Endpoint: "https://scim.example.com/",
+		Token:    "bearerToken",
+	})
+	assert.NoError(t, err)
+
+	g := &Group{
+		ID:          "groupId",
+		DisplayName: "New Id Group",
+	}
+
+	calledURL, _ := url.Parse("https://scim.example.com/Groups/groupId")
+
+	req := httpReqMatcher{
+		httpReq: &http.Request{
+			URL:    calledURL,
+			Method: http.MethodPatch,
+		},
+		body: "{\"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],\"Operations\":[{\"op\":\"replace\",\"value\":{\"id\":\"groupId\",\"displayName\":\"New Id Group\"}}]}",
+	}
+
+	x.EXPECT().Do(&req).MaxTimes(1).Return(&http.Response{
+		Status:     "OK",
+		StatusCode: 200,
+		Body:       nopCloser{bytes.NewBufferString("")},
+	}, nil)
+
+	err = c.UpdateGroup(g)
+	assert.NoError(t, err)
+}
+
 func TestClient_AddUserToGroup(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
