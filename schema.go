@@ -52,6 +52,22 @@ type GroupMemberChange struct {
 	Operations []GroupMemberChangeOperation `json:"Operations"`
 }
 
+// GroupReplace structs for Group replace patch operation
+type GroupReplace struct {
+	Schemas    []string                `json:"schemas"`
+	Operations []GroupReplaceOperation `json:"Operations"`
+}
+
+type GroupReplaceOperation struct {
+	Operation string            `json:"op"`
+	Group     GroupReplaceValue `json:"value"`
+}
+
+type GroupReplaceValue struct {
+	GroupId     string `json:"id"`
+	DisplayName string `json:"displayName"`
+}
+
 // UserEmail represents a user email address
 type UserEmail struct {
 	Value   string `json:"value"`

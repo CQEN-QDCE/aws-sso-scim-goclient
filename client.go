@@ -35,7 +35,7 @@ var (
 	ErrGroupNotSpecified = errors.New("group not specified")
 )
 
-// OperationType handle patch operations for add/remove
+// OperationType handle patch operations for add/remove groupe members
 type OperationType string
 
 const (
@@ -43,7 +43,10 @@ const (
 	OperationAdd OperationType = "add"
 
 	// OperationRemove is the remove operation for a patch
-	OperationRemove = "remove"
+	OperationRemove OperationType = "remove"
+
+	// OperationRemove is the replace operation for a patch
+	OperationReplace OperationType = "replace"
 )
 
 // Client represents an interface of methods used
@@ -51,6 +54,7 @@ const (
 type Client interface {
 	AddUserToGroup(*User, *Group) error
 	CreateGroup(*Group) (*Group, error)
+	UpdateGroup(*Group) error
 	CreateUser(*User) (*User, error)
 	DeleteGroup(*Group) error
 	DeleteUser(*User) error
@@ -438,6 +442,39 @@ func (c *client) CreateGroup(g *Group) (*Group, error) {
 	}
 
 	return &newGroup, nil
+}
+
+// UpdateGroup update the displayName property of a group
+func (c *client) UpdateGroup(g *Group) error {
+	if g == nil {
+		return ErrGroupNotSpecified
+	}
+
+	gc := &GroupReplace{
+		Schemas: []string{"urn:ietf:params:scim:api:messages:2.0:PatchOp"},
+		Operations: []GroupReplaceOperation{
+			{
+				Operation: string(OperationReplace),
+				Group: GroupReplaceValue{
+					GroupId:     g.ID,
+					DisplayName: g.DisplayName,
+				},
+			},
+		},
+	}
+
+	startURL, err := url.Parse(c.endpointURL.String())
+	if err != nil {
+		return err
+	}
+
+	startURL.Path = path.Join(startURL.Path, fmt.Sprintf("/Groups/%s", g.ID))
+	_, err = c.sendRequestWithBody(http.MethodPatch, startURL.String(), *gc)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // DeleteGroup will delete the group specified
